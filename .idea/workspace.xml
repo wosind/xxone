@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="15ede93c-108a-4908-a891-b6aca0a62f31" name="Default Changelist" comment="" />
+    <list default="true" id="15ede93c-108a-4908-a891-b6aca0a62f31" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/F0.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F1.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F10.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F3.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F4.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F5.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F6.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F7.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F8.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/F9.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/one/qlist.data" beforeDir="false" afterPath="$PROJECT_DIR$/dist/one/qlist.data" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,24 +41,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/one.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18400">
-              <caret line="903" column="38" selection-start-line="903" selection-start-column="38" selection-end-line="903" selection-end-column="38" />
-              <folding>
-                <element signature="e#349#369#0" expanded="true" />
-                <element signature="e#2176#6672#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tmp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="36" column="26" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="26" />
+            <state relative-caret-position="530">
+              <caret line="60" column="54" selection-start-line="59" selection-start-column="4" selection-end-line="60" selection-end-column="54" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -72,6 +73,9 @@
       <replace>logger.info</replace>
     </replaceStrings>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -90,6 +94,7 @@
     <option name="width" value="1040" />
     <option name="height" value="754" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -110,6 +115,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
@@ -233,29 +239,28 @@
       <workItem from="1592785013895" duration="4959000" />
       <workItem from="1592812909357" duration="3349000" />
       <workItem from="1592831561105" duration="6035000" />
-      <workItem from="1592892684009" duration="190000" />
+      <workItem from="1592892684009" duration="4174000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="133754000" />
+    <option name="totallyTimeSpent" value="137738000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1696" height="1036" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.79515827" visible="true" weight="0.23410758" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.79515827" visible="true" weight="0.23410758" />
       <window_info id="Structure" order="1" sideWeight="0.20484172" side_tool="true" weight="0.18948655" />
       <window_info id="Favorites" order="2" side_tool="true" weight="0.3294621" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3292683" />
-      <window_info anchor="bottom" x="972" y="304" width="614" height="579" id="Run" order="2" weight="0.6219512" />
+      <window_info anchor="bottom" x="972" y="304" width="614" height="579" id="Run" order="2" weight="0.31929046" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3991131" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Version Control" order="8" visible="true" weight="0.2682927" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.17741935" />
@@ -270,10 +275,39 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="LAST_COMMIT_MESSAGE" value="" />
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/xxone$one.coverage" NAME="one Coverage Results" MODIFIED="1592744496286" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/xxone$xxpublic.coverage" NAME="xxpublic Coverage Results" MODIFIED="1592273008136" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/xxone$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1592838708409" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/xxone$tmp.coverage" NAME="tmp Coverage Results" MODIFIED="1592896868563" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://D:/Python/Lib/site-packages/PIL/Image.py">
@@ -387,7 +421,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/one.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18400">
+        <state relative-caret-position="806">
           <caret line="903" column="38" selection-start-line="903" selection-start-column="38" selection-end-line="903" selection-end-column="38" />
           <folding>
             <element signature="e#349#369#0" expanded="true" />
@@ -398,8 +432,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tmp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="36" column="26" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="26" />
+        <state relative-caret-position="530">
+          <caret line="60" column="54" selection-start-line="59" selection-start-column="4" selection-end-line="60" selection-end-column="54" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
