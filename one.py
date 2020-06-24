@@ -39,35 +39,6 @@ from threading import Timer
 from requests.cookies import RequestsCookieJar
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
-# 隐藏控制台交互界面
-import ctypes
-
-whnd = ctypes.windll.kernel32.GetConsoleWindow()
-if whnd != 0:
-    ctypes.windll.user32.ShowWindow(whnd, 0)
-    ctypes.windll.kernel32.CloseHandle(whnd)
-
-# 控制台信息输出到log.txt
-logger = logging.getLogger(__name__)
-logger.setLevel(level=logging.INFO)
-handler = logging.FileHandler("log.txt")
-handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-logger.addHandler(handler)
-logger.addHandler(console)
-
-isUpdating = False
-stopApp = False
-taskList = []
-runing = Queue()
-imageQuery = None
-with open("color.data", 'r') as f:
-    content = f.read()
-colors = eval(content)
-
 
 def stopAllThread(obj=None):
     while True:
@@ -657,7 +628,7 @@ class MainFrame(tk.Frame):
         frm_colormanage.columnconfigure(1, weight=1)
         frm_colormanage.columnconfigure(2, weight=300)
         s = ttk.Style()
-        s.configure('My1.TFrame', relief = 'groove')
+        s.configure('My1.TFrame', relief='groove')
         s.configure('My2.TFrame', background='#334353')
         if colors:
             c = colors[0]
@@ -841,7 +812,6 @@ class MainFrame(tk.Frame):
     def addToState(self, s):
         self.showState.set(s)
 
-
     def onMouseWatch(self):
         self.dc = windll.user32.GetDC(0)
         with Listener(on_move=self.onGlobalMouseMove, on_click=self.onGlobalMouseClick) as listener:
@@ -856,14 +826,12 @@ class MainFrame(tk.Frame):
         # s = ttk.Style()
         # s.configure('showcolor.TLabel', background=Rgb2Hex(R, G, B))
 
-
     def onGlobalMouseMove(self, x, y):
         pass
         # 监听全屏鼠标移动（包括窗口外）
         # logger.info('mousepos:{0}'.format((x, y)))
         # self.getc(x,y)
         # logger.info('rgb:{0}'.format(getcolor(x, y)))
-
 
     def onGlobalMouseClick(self, x, y, button, pressed):
         # 监听鼠标点击
@@ -873,7 +841,7 @@ class MainFrame(tk.Frame):
             logger.info(DEC)
             R, G, B = Int2Rgb(DEC)
             s = ttk.Style()
-            h = "#%s"%Rgb2Hex(R, G, B)
+            h = "#%s" % Rgb2Hex(R, G, B)
             s.configure('showcolor.TLabel', background=h)
             # Stop listener
 
@@ -913,19 +881,17 @@ class MainFrame(tk.Frame):
     def onMenuClicked(self):
         s = """
         
-爬虫信息应用实例
-百度知道问题列表自动刷新程序V202006
-源码作者: xiaox
-联系方式: 18627472125
+tkinter GUI实例程序
+作者: xiaox
+联系: 18627472125
 
-1、自动拉取百度知道，个人中心的待回答问题列表。并且在发现有新问题的时候，进行音效提醒。
-2、对已拉取的数据进行保存、检索。
-3、生成提问人信息的URL地址，并在浏览器中展示。
-4、生成问题详情的的URL地址，并在浏览器中展示。
-5、调用百度翻译接口，翻译输入的文本。
-6、查看本地天气情况（爬取信息来源http://www.weather.com.cn/）
-7、隐藏系统控制台，并将信息重定向到Text控件中显示。
-8、多线程运行业务逻辑，后台自动拉取问题列表，与翻译或其他操作可同时执行。
+1、自动拉取百度知道个人中心的,待回答问题列表。并且在发现有新问题的时候，进行音效提醒。
+2、对已拉取的数据进行增删改查。
+3、生成提问人信息（这个网页本身是无法查看的）、问题详情的URL地址，并自动打开浏览器查看。
+4、调用百度翻译接口，翻译输入的文本。
+5、查看本地天气情况（爬取信息来源http://www.weather.com.cn/）
+6、颜色值的管理：颜色吸管、保存常用色值、不同类型色值互查
+7、资源文件转Base64编码
 """
         self.addToOutput(s)
 
@@ -950,7 +916,7 @@ class MainFrame(tk.Frame):
 
         elif cbname == "拾取颜色":
             logger.info("拾取颜色")
-            threading.Thread(target=self.onMouseWatch,name="onMouseWatch").start()
+            threading.Thread(target=self.onMouseWatch, name="onMouseWatch").start()
 
         elif cbname == "收藏色值":
             cHex = self.colorValues['HEX'].get()
@@ -1183,6 +1149,30 @@ class MainFrame(tk.Frame):
 
 
 if (__name__ == '__main__'):
-    main = App()
+    # 隐藏控制台交互界面
+    whnd = windll.kernel32.GetConsoleWindow()
+    if whnd != 0:
+        windll.user32.ShowWindow(whnd, 0)
+        windll.kernel32.CloseHandle(whnd)
 
-    # app = MainFrame(tk.Tk())
+    # 控制台信息输出到log.txt
+    logger = logging.getLogger(__name__)
+    logger.setLevel(level=logging.INFO)
+    handler = logging.FileHandler("log.txt")
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    logger.addHandler(handler)
+    logger.addHandler(console)
+
+    isUpdating = False
+    stopApp = False
+    taskList = []
+    runing = Queue()
+    imageQuery = None
+    with open("color.data", 'r') as f:
+        content = f.read()
+    colors = eval(content)
+    main = App()
