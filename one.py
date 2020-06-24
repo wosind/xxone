@@ -24,7 +24,6 @@ import execjs
 import json
 import sqlite3
 import logging
-
 from ctypes import windll
 from pynput.mouse import Listener
 from queue import Queue
@@ -33,29 +32,13 @@ from xxpublic import *
 from tkinter import messagebox
 from tkinter import Canvas
 from PIL import Image, ImageTk
-# from io import StringIO
 from playsound import playsound
 from threading import Timer
 from requests.cookies import RequestsCookieJar
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 
-def stopAllThread(obj=None):
-    while True:
-        if isUpdating:
-            logger.info("isUpdating,1S later restart")
-            sleep(1)
-        else:
-            break
-    while True:
-        for th in threading.enumerate():
-            if type(th) == threading.Timer:
-                th.cancel()
-        if len(threading.enumerate()) == 1: break
-    if obj:
-        obj.destroy()
-    else:
-        return 1
+# from io import StringIO
 
 
 class Translate():
@@ -170,15 +153,19 @@ class App(tk.Tk):
         super().__init__()
         self.title('ONE - Tools In One')
 
+        # 获取当前工作路径
         if getattr(sys, 'frozen', None):
             basedir = sys._MEIPASS
         else:
             basedir = os.path.dirname(__file__)
+
+        # 拼接资源文件的绝对路径
         icofile = os.path.join(basedir, 'title.ico')
         self.configFileName = os.path.join(basedir, 'config.data')
         imageQueryFname = os.path.join(basedir, 'query.png')
         global imageQuery
         imageQuery = tk.PhotoImage(file=imageQueryFname)
+
         # 读取系统配置
         fname = 'config.data'
         self.configs = {}
@@ -193,28 +180,50 @@ class App(tk.Tk):
             self.configs = {'issave': False, 'qlist': True}
             with open(fname, 'w') as f:
                 f.write("{'issave':False,'qlist':False}")
+
+        # 限制窗口最小尺寸
         w = 1024 if self.configs["qlist"] else 480
-        self.wm_minsize(w, 600)  # 设置窗口最小化大小
+        self.wm_minsize(w, 600)
+
+        # 窗口标题图标
         self.iconbitmap(icofile)
+
+        # 主窗口关闭事件
         self.protocol("WM_DELETE_WINDOW", self.onMainClosing)
-        # self.bind("<Key>", self.onKeyDown)
-        # logger.info("start WelcomeFrame")
+
+        # 绑定窗口全局按键按下事件
+        self.bind("<Key>", self.onKeyDown)
+
+        # 构造欢迎界面
         WelcomeFrame(self)
+
+        # 启动多任务管理线程
         threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring").start()
+
+        # 隐藏主窗口边框
         # self.overrideredirect(True)
+
         self.mainloop()
 
+    def onKeyDown(self, e):
+        # F5快捷键
+        if e.keycode == 116:
+            pass
     def TaskMonitoring(self):
+        # 如果主窗口标记已关闭，停止多任务管理
         if stopApp: return
+
+        # 如果任务列表中，有任务则执行它，然后删除任务
         while taskList:
             task = taskList.pop()
             Timer(task[1], task[0]).start()
         Timer(3, self.TaskMonitoring).start()
 
-    def GotoConfig(self, FromObject):
-        stopAllThread()
-        FromObject.destroy()
-        ConfigFrame(self)
+    # 系统设置页面
+    # def GotoConfig(self, FromObject):
+    #     stopAllThread()
+    #     FromObject.destroy()
+    #     ConfigFrame(self)
 
     def GoToMain(self, FromObject):
         FromObject.destroy()
@@ -291,6 +300,7 @@ class WelcomeFrame(tk.Frame):
         self.Lable = tk.Label(self, text="正在初始化程序...", font=("微软雅黑", 9), fg="#924D26")
         self.Lable.grid(row=2, column=0, sticky=tk.NSEW)
         tk.Frame(self).grid(row=3, column=0, sticky=tk.NSEW)
+
         t = Timer(2, master.GoToMain, args=(self,))
         t.start()
 
@@ -298,16 +308,16 @@ class WelcomeFrame(tk.Frame):
 class MainFrame(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
-        # logger.info("build MainFrame")
-
         self.main = master
+
         # 百度翻译模块
         self.translater = Translate()
+
         # 控制台输出信息重定向到内存文件中
         # self.sio = StringIO()
         # sys.stdout = self.sio
 
-        # 构造打包的资源文件路径
+        # 构造资源文件路径
         if getattr(sys, 'frozen', None):
             basedir = sys._MEIPASS
         else:
@@ -323,11 +333,11 @@ class MainFrame(tk.Frame):
 
         # 是否保存列表到本地
         self.isSave = self.main.configs['issave']
-
         if self.isSave:
             with open(self.dataFileName, 'r') as f:
                 content = f.read()
                 self.qlist = eval(content)
+
         # 浏览器初始化，用于打开问题详情窗口页面
         chromePath = r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
         webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(chromePath))
@@ -354,17 +364,8 @@ class MainFrame(tk.Frame):
             "isExpGroup": 1
         }
 
-        # 倒计时计数
-        self.countdown = 0
-
-        # 控制台信息读取指针
-        self.nseek = 0
-
         # 消息数
         self.msgcount = 0
-
-        # 输出行数
-        self.rownum = 1
 
         # 过滤后的列表
         self.qfiltered = []
@@ -384,9 +385,11 @@ class MainFrame(tk.Frame):
 
         # 搜索输入框绑定信息
         self.entry_var = tk.StringVar()
+
         # 监控输入信息的变化，即输入状态
         self.entry_var.trace("w", lambda name, index, mode, arg=self.entry_var: self.onEditChange(arg))
 
+        # 颜色右键弹出菜单
         self.rightMenubar = tk.Menu(self.main, tearoff=False)
 
         # 初始化主窗口
@@ -396,18 +399,13 @@ class MainFrame(tk.Frame):
         # 设置顶级窗体的行列权重，否则子组件的拉伸不会填充整个窗体
         master.rowconfigure(0, weight=1)
         master.columnconfigure(0, weight=1)
-        # master.wm_minsize(1024, 600)  # 设置窗口最小化大小
-        # master.title('Auto Refresh QaList')
-        # master.iconbitmap(self.icofile)
-        # master.protocol("WM_DELETE_WINDOW", self.onMainClosing)
-        # master.bind("<Key>", self.onKeyDown)
-        # master.bind("<Unmap>", lambda event: self.Unmap(master) if master.state() == 'iconic' else False)
 
         self.ft = tkFont.Font(family='微软雅黑', size=10, weight='bold')  # 创建字体
         # self.initMenu(master)  # 为顶级窗体添加菜单项
 
         # 设置继承类MWindow的grid布局位置，并向四个方向拉伸以填充顶级窗体
         self.grid(row=0, column=0, sticky=tk.NSEW)
+
         # 设置继承类MWindow的行列权重，保证内建子组件会拉伸填充
         self.rowconfigure(0, weight=100000);
         self.rowconfigure(1, weight=1);
@@ -416,28 +414,26 @@ class MainFrame(tk.Frame):
         self.panedwin = ttk.Panedwindow(self, orient=tk.HORIZONTAL)  # 添加水平方向的推拉窗组件
         self.panedwin.grid(row=0, column=0, sticky=tk.NSEW)  # 向四个方向拉伸填满MWindow帧
 
+        # 底部程序说明
         self.lbver = ttk.Label(self, font=self.ft)
         self.lbver["text"] = "One 我的工具箱 V20200618A Code By Xiaox@2020 Tel : 18627472125"
         self.lbver["anchor"] = tk.CENTER
         self.lbver.grid(row=1, column=0, sticky=tk.NSEW)
-        # s = ttk.Style()
-        # logger.info(s.element_options('Button.label'))
 
+        # 判断是否加载问题刷新模块
         isload = self.main.configs['qlist']
         if isload:
             self.initQaList()  # 初始化左边列表界面
         self.initDetail()  # 初始化右边明细、控制界面
 
-        # 添加自动更新到任务列表
-        if isload: taskList.append((self.updateInfo, 1))
-
         # 加载历史列表
         if self.qlist: self.qListFilter()
 
         # 显示程序说明
-        self.onMenuClicked()
+        self.showVerInfo()
 
-        # master.mainloop()
+        # 添加自动更新到任务列表
+        if isload: taskList.append((self.updateInfo, 1))
 
     # def initMenu(self, master):
     #     '''初始化菜单'''
@@ -592,7 +588,8 @@ class MainFrame(tk.Frame):
 
         cblists = ['转Base64编码',
                    '百度翻译',
-                   '今日天气'
+                   '今日天气',
+                   '查看线程'
                    ]
 
         for inx, cbname in enumerate(cblists):
@@ -805,6 +802,9 @@ class MainFrame(tk.Frame):
         qcount = "记录数：%s/%s" % (len(self.qfiltered), len(self.qlist))
         self.addToState("最后更新时间：%s %s %s" % (TimeOfNow(), nmsg, qcount))
 
+    def showVerInfo(self):
+        self.addToOutput(note)
+
     def addToOutput(self, s):
         self.text_output.delete(0.0, tk.END)
         self.text_output.insert(tk.END, s + '\n')
@@ -834,7 +834,7 @@ class MainFrame(tk.Frame):
         # logger.info('rgb:{0}'.format(getcolor(x, y)))
 
     def onGlobalMouseClick(self, x, y, button, pressed):
-        # 监听鼠标点击
+        # 监听颜色吸管启动后的,鼠标点击事件
         logger.info('{0} at {1}'.format('mouse click ', (x, y)))
         if not pressed:
             DEC = getcolor(self.dc, x, y)
@@ -844,7 +844,6 @@ class MainFrame(tk.Frame):
             h = "#%s" % Rgb2Hex(R, G, B)
             s.configure('showcolor.TLabel', background=h)
             # Stop listener
-
             self.main.wm_attributes('-topmost', 1)
             self.main.wm_attributes('-topmost', 0)
             return False
@@ -878,26 +877,12 @@ class MainFrame(tk.Frame):
             qid = self.tree_qlist.item(sels[0])['text']
             self.showDetailInBrower(qid)
 
-    def onMenuClicked(self):
-        s = """
-        
-tkinter GUI实例程序
-作者: xiaox
-联系: 18627472125
-
-1、自动拉取百度知道个人中心的,待回答问题列表。并且在发现有新问题的时候，进行音效提醒。
-2、对已拉取的数据进行增删改查。
-3、生成提问人信息（这个网页本身是无法查看的）、问题详情的URL地址，并自动打开浏览器查看。
-4、调用百度翻译接口，翻译输入的文本。
-5、查看本地天气情况（爬取信息来源http://www.weather.com.cn/）
-6、颜色值的管理：颜色吸管、保存常用色值、不同类型色值互查
-7、资源文件转Base64编码
-"""
-        self.addToOutput(s)
-
     def onButtonClicked(self, cbname):
-        if cbname == '刷新列表':
-            pass
+        if cbname == '查看线程':
+            for th in threading.enumerate():
+                logger.info(th)
+        elif cbname == "刷新列表":
+            logger.info(cbname)
 
         elif cbname == '系统设置':
             self.main.GotoConfig(self)
@@ -956,10 +941,6 @@ tkinter GUI实例程序
     def onColorClicked(self, e, HEX):
         self.colorValues["HEX"].set(HEX)
         self.onColorEditEnter(e=None, w="HEX")
-
-    def onKeyDown(self, e):
-        if e.keycode == 116:
-            self.onButtonClicked("刷新列表")
 
     def onEditChange(self, var):
         if not var.get():
@@ -1149,6 +1130,20 @@ tkinter GUI实例程序
 
 
 if (__name__ == '__main__'):
+
+    note = """
+    tkinter GUI实例程序
+    作者: xiaox
+    联系: 18627472125
+
+    1、自动拉取百度知道个人中心的,待回答问题列表。并且在发现有新问题的时候，进行音效提醒。
+    2、对已拉取的数据进行增删改查。
+    3、生成提问人信息（这个网页本身是无法查看的）、问题详情的URL地址，并自动打开浏览器查看。
+    4、调用百度翻译接口，翻译输入的文本。
+    5、查看本地天气情况（爬取信息来源http://www.weather.com.cn/）
+    6、颜色值的管理：颜色吸管、保存常用色值、不同类型色值互查
+    7、资源文件转Base64编码
+    """
     # 隐藏控制台交互界面
     whnd = windll.kernel32.GetConsoleWindow()
     if whnd != 0:
@@ -1167,12 +1162,17 @@ if (__name__ == '__main__'):
     logger.addHandler(handler)
     logger.addHandler(console)
 
-    isUpdating = False
+    # 主程序关闭标记，提示多线程管理，终止未启动线程
     stopApp = False
+    # 多线程任务列表
     taskList = []
+    # 多线程执行状态
     runing = Queue()
+    # 查询按钮图片
     imageQuery = None
+
+    # 颜色收藏数据读取
     with open("color.data", 'r') as f:
         content = f.read()
-    colors = eval(content)
+    colors = eval(content) if content else {}
     main = App()

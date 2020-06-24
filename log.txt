@@ -30410,3 +30410,18 @@
 2020-06-21 20:29:20,339 - __main__ - INFO - build MainFrame
 2020-06-21 20:31:10,657 - __main__ - INFO - start WelcomeFrame
 2020-06-21 20:31:12,661 - __main__ - INFO - build MainFrame
+2020-06-24 13:50:00,570 - __main__ - INFO - <_MainThread(MainThread, started 3116)>
+2020-06-24 13:50:00,603 - __main__ - INFO - <Timer(Thread-4, started 7392)>
+2020-06-24 13:50:00,603 - __main__ - INFO - <Timer(Thread-5, started 1584)>
+2020-06-24 13:50:07,484 - __main__ - INFO - <_MainThread(MainThread, started 3116)>
+2020-06-24 13:50:07,485 - __main__ - INFO - <Timer(Thread-7, started 10700)>
+2020-06-24 13:50:07,485 - __main__ - INFO - <Timer(Thread-8, started 3052)>
+2020-06-24 13:50:10,470 - __main__ - INFO - <_MainThread(MainThread, started 3116)>
+2020-06-24 13:50:10,470 - __main__ - INFO - <Timer(Thread-7, started 10700)>
+2020-06-24 13:50:10,471 - __main__ - INFO - <Timer(Thread-9, started 14060)>
+2020-06-24 13:50:12,438 - __main__ - INFO - <_MainThread(MainThread, started 3116)>
+2020-06-24 13:50:12,438 - __main__ - INFO - <Timer(Thread-7, started 10700)>
+2020-06-24 13:50:12,438 - __main__ - INFO - <Timer(Thread-10, started 7080)>
+2020-06-24 13:50:13,321 - __main__ - INFO - <_MainThread(MainThread, started 3116)>
+2020-06-24 13:50:13,321 - __main__ - INFO - <Timer(Thread-7, started 10700)>
+2020-06-24 13:50:13,322 - __main__ - INFO - <Timer(Thread-10, started 7080)>
