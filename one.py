@@ -203,20 +203,24 @@ class App(tk.Tk):
         # 隐藏主窗口边框
         # self.overrideredirect(True)
 
+        # 主界面对象
+        self.Mf = None
         self.mainloop()
 
     def onKeyDown(self, e):
         # F5快捷键
-        if e.keycode == 116:
-            pass
+        if e.keycode == 116 and self.Mf:
+            global coolDown
+            coolDown = 19
     def TaskMonitoring(self):
         # 如果主窗口标记已关闭，停止多任务管理
         if stopApp: return
 
-        # 如果任务列表中，有任务则执行它，然后删除任务
-        while taskList:
-            task = taskList.pop()
-            Timer(task[1], task[0]).start()
+        global coolDown
+        if coolDown > 18:
+            threading.Thread(self.Mf.updateInfo()).start()
+            coolDown = 1
+        if coolDown: coolDown += 1
         Timer(3, self.TaskMonitoring).start()
 
     # 系统设置页面
@@ -227,7 +231,7 @@ class App(tk.Tk):
 
     def GoToMain(self, FromObject):
         FromObject.destroy()
-        MainFrame(self)
+        self.Mf = MainFrame(self)
 
     def onMainClosing(self, _sysTrayIcon=None):
         global stopApp
@@ -407,8 +411,8 @@ class MainFrame(tk.Frame):
         self.grid(row=0, column=0, sticky=tk.NSEW)
 
         # 设置继承类MWindow的行列权重，保证内建子组件会拉伸填充
-        self.rowconfigure(0, weight=100000);
-        self.rowconfigure(1, weight=1);
+        self.rowconfigure(0, weight=1);
+        # self.rowconfigure(1, weight=1);
         self.columnconfigure(0, weight=1)
 
         self.panedwin = ttk.Panedwindow(self, orient=tk.HORIZONTAL)  # 添加水平方向的推拉窗组件
@@ -433,7 +437,8 @@ class MainFrame(tk.Frame):
         self.showVerInfo()
 
         # 添加自动更新到任务列表
-        if isload: taskList.append((self.updateInfo, 1))
+        global coolDown
+        if isload: coolDown = 1
 
     # def initMenu(self, master):
     #     '''初始化菜单'''
@@ -535,7 +540,7 @@ class MainFrame(tk.Frame):
         self.frm_right.grid(row=0, column=0, sticky=tk.NSEW)  # 右侧Frame帧四个方向拉伸
         self.frm_right.columnconfigure(0, weight=1);  # 右侧Frame帧两行一列，配置列的权重
         self.frm_right.rowconfigure(0, weight=3);  # 右侧Frame帧两行的权重8:1
-        self.frm_right.rowconfigure(1, weight=1)
+        # self.frm_right.rowconfigure(1, weight=1)
         self.panedwin.add(self.frm_right, weight=5)  # 将右侧Frame帧添加到推拉窗控件,右侧权重10
 
         self.text_output = tk.Text(self.frm_right, relief=tk.RIDGE, height=16)
@@ -559,10 +564,10 @@ class MainFrame(tk.Frame):
         self.frm_control.grid(row=1, column=0, sticky=tk.NSEW, columnspan=2)
 
         self.frm_control.columnconfigure(0, weight=1);  # 配置控制区Frame各行列的权重
-        self.frm_control.rowconfigure(0, weight=1);  # 第一行状态栏
-        self.frm_control.rowconfigure(1, weight=1);  # 第二行按钮组
-        self.frm_control.rowconfigure(2, weight=4);  # 第三行翻译输入区域
-        self.frm_control.rowconfigure(3, weight=4);  # 第四行版本信息
+        # self.frm_control.rowconfigure(0, weight=1);  # 第一行状态栏
+        # self.frm_control.rowconfigure(1, weight=1);  # 第二行按钮组
+        # self.frm_control.rowconfigure(2, weight=4);  # 第三行翻译输入区域
+        # self.frm_control.rowconfigure(3, weight=4);  # 第四行颜色管理
 
         frm_state = ttk.Frame(self.frm_control, padding=(0, 2))  # 第一行状态栏
         frm_state.grid(row=0, column=0, sticky=tk.NSEW)
@@ -619,11 +624,6 @@ class MainFrame(tk.Frame):
         scr4.grid(row=0, column=1, sticky=tk.NS)
         self.text_input.configure(yscrollcommand=scr4.set)
 
-        frm_colormanage = ttk.Frame(self.frm_control, padding=(0, 4))  # 第四行版本信息
-        frm_colormanage.grid(row=3, column=0, sticky=tk.NSEW)
-        frm_colormanage.columnconfigure(0, weight=1)
-        frm_colormanage.columnconfigure(1, weight=1)
-        frm_colormanage.columnconfigure(2, weight=300)
         s = ttk.Style()
         s.configure('My1.TFrame', relief='groove')
         s.configure('My2.TFrame', background='#334353')
@@ -632,9 +632,25 @@ class MainFrame(tk.Frame):
         else:
             c = '#FFFFFF'
         s.configure('showcolor.TLabel', background=c)
-        s.configure('L1.TLabel', background='#334353', foreground="#BBBBBB")
+        s.configure('L1.TLabel', foreground="#334353")
         s.configure('B1.TButton', height=1)
-        self.frm_lb_showcolor = ttk.Frame(frm_colormanage, padding=(4, 4), width=60, style='My1.TFrame')  # 第四行版本信息
+
+        # 颜色管理区域
+        frm_colormanage = ttk.Frame(self.frm_control, padding=(0, 4))
+        frm_colormanage.grid(row=3, column=0, sticky=tk.NSEW)
+        # frm_colormanage.columnconfigure(0, weight=1)
+        frm_colormanage.columnconfigure(1, weight=3)
+        frm_colormanage.rowconfigure(0, weight=1)
+
+        # 颜色管理 - 左边区域
+        frm_colors_left = ttk.Frame(frm_colormanage, padding=(4, 4), style='My1.TFrame')
+        frm_colors_left.grid(row=0, column=0, sticky=tk.NSEW)
+
+        frm_colors_left.columnconfigure(0, weight=1)
+        frm_colors_left.columnconfigure(1, weight=1)
+        frm_colors_left.rowconfigure(0, weight=1)
+
+        self.frm_lb_showcolor = ttk.Frame(frm_colors_left, padding=(4, 4),width=200)  # 第四行版本信息
         self.frm_lb_showcolor.grid(row=0, column=0, sticky=tk.NSEW)
 
         self.frm_lb_showcolor.columnconfigure(0, weight=1)
@@ -652,7 +668,7 @@ class MainFrame(tk.Frame):
         b["command"] = lambda arg=cbname: self.onButtonClicked('拾取颜色')
         b.grid(row=2, column=0, sticky=tk.EW)
 
-        frm_lb_entry = ttk.Frame(frm_colormanage, padding=(2, 2), height=50, style='My2.TFrame')  # 第四行版本信息
+        frm_lb_entry = ttk.Frame(frm_colors_left, padding=(2, 2), height=50)  # 第四行版本信息
         frm_lb_entry.grid(row=0, column=1, sticky=tk.NSEW)
 
         frm_lb_entry.columnconfigure(0, weight=1)
@@ -681,32 +697,24 @@ class MainFrame(tk.Frame):
         E.grid(row=2, column=1, sticky=tk.EW)
         E.bind("<Return>", lambda event, arg="HEX": self.onColorEditEnter(event, arg))
 
-        # self.Entry_query.bind("<Return>", self.onEditEnter)
+        # 颜色管理右边区域
+        frm_colors_right = ttk.Frame(frm_colormanage, height=50, style='My1.TFrame')
+        frm_colors_right.grid(row=0, column=1, sticky=tk.NSEW)
 
-        frm_lb_list = ttk.Frame(frm_colormanage, height=50, style='My1.TFrame')  # 第四行版本信息
-        frm_lb_list.grid(row=0, column=2, sticky=tk.NSEW)
+        frm_colors_right.columnconfigure(0, weight=1)
+        frm_colors_right.rowconfigure(0, weight=1)
 
-        frm_lb_list.columnconfigure(0, weight=1)
-        frm_lb_list.rowconfigure(0, weight=1)
-
-        self.colorGroup = tk.Text(frm_lb_list, spacing1=1, height=6)
+        self.colorGroup = tk.Text(frm_colors_right, spacing1=1, height=6)
         self.colorGroup["font"] = self.ft
         self.colorGroup["insertbackground"] = "#ABB2BF"
         self.colorGroup["padx"] = 4
-        self.colorGroup["bg"] = "#BBBBBB"
+        # self.colorGroup["relief"] = 'groove'
+        self.colorGroup["bg"] = "#DDDDDD"
         self.colorGroup["fg"] = "#ABB2BF"
         self.colorGroup.grid(row=0, column=0, sticky=tk.NSEW)
 
         self.onBuildColorGroup(self.colorGroup)
-        # for color in colors:
-        #     # "flat(默认),sunken,raised,groove,ridge
-        #     l = tk.Label(self.colorGroup, text=color, width=10, bg=color, relief="groove")
-        #     self.colorGroup.window_create(tk.END, window=l)
-        #     # 绑定左键键鼠标事件
-        #     l.bind("<Button-1>", lambda event, arg=color: self.onColorClicked(event, arg))
-        #     # 绑定右键鼠标事件
-        #     l.bind("<Button-3>", lambda event, lable=l, arg=color: self.createMenuItem(event, lable, arg))
-        scr5 = ttk.Scrollbar(frm_lb_list, orient=tk.VERTICAL, command=self.colorGroup.yview)
+        scr5 = ttk.Scrollbar(frm_colors_right, orient=tk.VERTICAL, command=self.colorGroup.yview)
         scr5.grid(row=0, column=1, sticky=tk.NS)
         self.colorGroup.configure(yscrollcommand=scr5.set)
 
@@ -1047,7 +1055,6 @@ class MainFrame(tk.Frame):
         except BaseException as e:
             logger.info(e)
             runing.get()
-            taskList.append((self.updateInfo, 3))
             return
 
         try:
@@ -1055,13 +1062,11 @@ class MainFrame(tk.Frame):
         except BaseException as e:
             logger.info(e)
             runing.get()
-            taskList.append((self.updateInfo, 3))
             return
 
         # 无拉取信息
         if not reslis:
             runing.get()
-            taskList.append((self.updateInfo, 3))
             return
 
         # 处理信息
@@ -1072,7 +1077,6 @@ class MainFrame(tk.Frame):
         except BaseException as e:
             logger.info(e)
             runing.get()
-            taskList.append((self.updateInfo, 3))
             return
 
         # 去重
@@ -1097,7 +1101,7 @@ class MainFrame(tk.Frame):
                     logger.info("update", e)
         self.showLisUpdate()
         runing.get()
-        taskList.append((self.updateInfo, 50))
+
 
     def qListClear(self):
         x = self.tree_qlist.get_children()
@@ -1164,8 +1168,12 @@ if (__name__ == '__main__'):
 
     # 主程序关闭标记，提示多线程管理，终止未启动线程
     stopApp = False
-    # 多线程任务列表
+
+    # 更新频率
+    coolDown = 0
+
     taskList = []
+
     # 多线程执行状态
     runing = Queue()
     # 查询按钮图片
