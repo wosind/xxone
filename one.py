@@ -24,6 +24,7 @@ import execjs
 import json
 import sqlite3
 import logging
+
 from ctypes import windll
 from pynput.mouse import Listener
 from queue import Queue
@@ -151,7 +152,10 @@ class App(tk.Tk):
     # 主应用对象
     def __init__(self):
         super().__init__()
-        self.title('ONE - Tools In One')
+
+        self.dynamicStr = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█', '▇', '▆', '▅', '▄', '▃', '▂', '▁']
+        self.titleStr = 'ONE - Tools In One  '
+        self.title(self.titleStr + ''.join(self.dynamicStr))
 
         # 获取当前工作路径
         if getattr(sys, 'frozen', None):
@@ -199,6 +203,7 @@ class App(tk.Tk):
 
         # 启动多任务管理线程
         threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring").start()
+        threading.Thread(target=self.protectThread, name="protectThread").start()
 
         # 隐藏主窗口边框
         # self.overrideredirect(True)
@@ -212,6 +217,15 @@ class App(tk.Tk):
         if e.keycode == 116 and self.Mf:
             global coolDown
             coolDown = 19
+
+    def protectThread(self):
+        if stopApp: return
+        self.dynamicStr.append(self.dynamicStr.pop(0))
+        self.title(self.titleStr + "".join(self.dynamicStr))
+        if threading.activeCount() < 3:
+            threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring").start()
+        Timer(0.5, self.protectThread).start()
+
     def TaskMonitoring(self):
         # 如果主窗口标记已关闭，停止多任务管理
         if stopApp: return
@@ -541,7 +555,7 @@ class MainFrame(tk.Frame):
         self.frm_right.columnconfigure(0, weight=1);  # 右侧Frame帧两行一列，配置列的权重
         self.frm_right.rowconfigure(0, weight=3);  # 右侧Frame帧两行的权重8:1
         # self.frm_right.rowconfigure(1, weight=1)
-        self.panedwin.add(self.frm_right, weight=5)  # 将右侧Frame帧添加到推拉窗控件,右侧权重10
+        self.panedwin.add(self.frm_right, weight=4)  # 将右侧Frame帧添加到推拉窗控件,右侧权重10
 
         self.text_output = tk.Text(self.frm_right, relief=tk.RIDGE, height=16)
         self.text_output["bg"] = "#21252B"
@@ -650,7 +664,7 @@ class MainFrame(tk.Frame):
         frm_colors_left.columnconfigure(1, weight=1)
         frm_colors_left.rowconfigure(0, weight=1)
 
-        self.frm_lb_showcolor = ttk.Frame(frm_colors_left, padding=(4, 4),width=200)  # 第四行版本信息
+        self.frm_lb_showcolor = ttk.Frame(frm_colors_left, padding=(4, 4), width=200)  # 第四行版本信息
         self.frm_lb_showcolor.grid(row=0, column=0, sticky=tk.NSEW)
 
         self.frm_lb_showcolor.columnconfigure(0, weight=1)
@@ -887,6 +901,7 @@ class MainFrame(tk.Frame):
 
     def onButtonClicked(self, cbname):
         if cbname == '查看线程':
+            logger.info(threading.activeCount())
             for th in threading.enumerate():
                 logger.info(th)
         elif cbname == "刷新列表":
@@ -1101,7 +1116,6 @@ class MainFrame(tk.Frame):
                     logger.info("update", e)
         self.showLisUpdate()
         runing.get()
-
 
     def qListClear(self):
         x = self.tree_qlist.get_children()
