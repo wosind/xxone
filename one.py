@@ -202,9 +202,13 @@ class App(tk.Tk):
         WelcomeFrame(self)
 
         # 启动多任务管理线程
-        threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring").start()
-        threading.Thread(target=self.protectThread, name="protectThread").start()
+        t = threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring")
 
+        t.daemon = True
+        t.start()
+        t = threading.Thread(target=self.protectThread, name="protectThread")
+        t.daemon = True
+        t.start()
         # 隐藏主窗口边框
         # self.overrideredirect(True)
 
@@ -223,19 +227,27 @@ class App(tk.Tk):
         self.dynamicStr.append(self.dynamicStr.pop(0))
         self.title(self.titleStr + "".join(self.dynamicStr))
         if threading.activeCount() < 3:
-            threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring").start()
-        Timer(0.5, self.protectThread).start()
+            t = threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring")
+            t.daemon = True
+            t.start()
+
+        t = Timer(0.5, self.protectThread)
+        t.daemon = True
+        t.start()
 
     def TaskMonitoring(self):
         # 如果主窗口标记已关闭，停止多任务管理
         if stopApp: return
-
         global coolDown
         if coolDown > 18:
-            threading.Thread(self.Mf.updateInfo()).start()
+            t = threading.Thread(self.Mf.updateInfo())
+            t.daemon = True
+            t.start()
             coolDown = 1
         if coolDown: coolDown += 1
-        Timer(3, self.TaskMonitoring).start()
+        t = Timer(3, self.TaskMonitoring)
+        t.daemon = True
+        t.start()
 
     # 系统设置页面
     # def GotoConfig(self, FromObject):
@@ -248,6 +260,7 @@ class App(tk.Tk):
         self.Mf = MainFrame(self)
 
     def onMainClosing(self, _sysTrayIcon=None):
+
         global stopApp
         stopApp = True
         if not runing.empty():
@@ -261,7 +274,6 @@ class App(tk.Tk):
                 if type(th) == threading.Timer:
                     th.cancel()
             if len(threading.enumerate()) == 1: break
-        # logger.info("onMainClosing destroy" )
         self.destroy()
 
 
@@ -669,8 +681,8 @@ class MainFrame(tk.Frame):
 
         self.frm_lb_showcolor.columnconfigure(0, weight=1)
         self.frm_lb_showcolor.rowconfigure(0, weight=2)
-        self.frm_lb_showcolor.rowconfigure(1, weight=1)
-        self.frm_lb_showcolor.rowconfigure(2, weight=1)
+        # self.frm_lb_showcolor.rowconfigure(1, weight=1)
+        # self.frm_lb_showcolor.rowconfigure(2, weight=1)
 
         ttk.Label(self.frm_lb_showcolor, style="showcolor.TLabel", width=10).grid(row=0, column=0, sticky=tk.NSEW)
 
