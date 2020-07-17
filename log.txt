@@ -30653,3 +30653,12 @@
 2020-06-25 21:36:28,602 - __main__ - INFO - <_MainThread(MainThread, started 3376)>
 2020-06-25 21:36:28,603 - __main__ - INFO - <Timer(Thread-134, started 3204)>
 2020-06-25 21:36:28,603 - __main__ - INFO - <Timer(Thread-149, started 2864)>
+2020-06-28 19:37:58,817 - __main__ - INFO - sendDePost: 
+2020-06-28 19:42:27,397 - __main__ - INFO - 拾取颜色
+2020-06-28 19:42:28,842 - __main__ - INFO - mouse click  at (866, 496)
+2020-06-28 19:42:28,993 - __main__ - INFO - mouse click  at (866, 496)
+2020-06-28 19:42:29,000 - __main__ - INFO - 16777215
+2020-06-28 19:43:28,944 - __main__ - INFO - 拾取颜色
+2020-06-28 19:43:31,427 - __main__ - INFO - mouse click  at (1008, 577)
+2020-06-28 19:43:31,547 - __main__ - INFO - mouse click  at (1008, 577)
+2020-06-28 19:43:31,551 - __main__ - INFO - 2827553

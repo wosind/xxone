@@ -14,10 +14,7 @@ B:集合日常工作的一些应用工具，
 import tkinter as tk
 import tkinter.font as tkFont
 import tkinter.ttk as ttk
-import time
-import sys
-import os
-import threading
+import os, sys, time
 import requests
 import webbrowser
 import execjs
@@ -25,18 +22,18 @@ import json
 import sqlite3
 import logging
 
+from time import sleep
 from ctypes import windll
 from pynput.mouse import Listener
 from queue import Queue
-from time import sleep
-from xxpublic import *
+from threading import Thread
 from tkinter import messagebox
 from tkinter import Canvas
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+from requests.cookies import RequestsCookieJar
 from PIL import Image, ImageTk
 from playsound import playsound
-from threading import Timer
-from requests.cookies import RequestsCookieJar
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from xxpublic import *
 
 
 # from io import StringIO
@@ -183,7 +180,7 @@ class App(tk.Tk):
         else:
             self.configs = {'issave': False, 'qlist': True}
             with open(fname, 'w') as f:
-                f.write("{'issave':False,'qlist':False}")
+                f.write("{'issave':True,'qlist':True}")
 
         # 限制窗口最小尺寸
         w = 1024 if self.configs["qlist"] else 480
@@ -199,21 +196,16 @@ class App(tk.Tk):
         self.bind("<Key>", self.onKeyDown)
 
         # 构造欢迎界面
-        WelcomeFrame(self)
-
-        # 启动多任务管理线程
-        t = threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring")
-
-        t.daemon = True
-        t.start()
-        t = threading.Thread(target=self.protectThread, name="protectThread")
-        t.daemon = True
-        t.start()
-        # 隐藏主窗口边框
-        # self.overrideredirect(True)
+        self.welcomeF = WelcomeFrame(self)
 
         # 主界面对象
         self.Mf = None
+
+        # 隐藏主窗口边框
+        # self.overrideredirect(True)
+
+        self.after(2000, lambda args=self.welcomeF: self.GoToMain(args))
+
         self.mainloop()
 
     def onKeyDown(self, e):
@@ -222,32 +214,27 @@ class App(tk.Tk):
             global coolDown
             coolDown = 19
 
-    def protectThread(self):
-        if stopApp: return
-        self.dynamicStr.append(self.dynamicStr.pop(0))
-        self.title(self.titleStr + "".join(self.dynamicStr))
-        if threading.activeCount() < 3:
-            t = threading.Thread(target=self.TaskMonitoring, name="TaskMonitoring")
-            t.daemon = True
-            t.start()
-
-        t = Timer(0.5, self.protectThread)
-        t.daemon = True
-        t.start()
+    # def protectThread(self):
+    #     if stopApp: return
+    #     self.dynamicStr.append(self.dynamicStr.pop(0))
+    #     self.title(self.titleStr + "".join(self.dynamicStr))
+    #     if threading.activeCount() < 3:
+    #         global th_tm
+    #         th_tm = threading.Thread(target=self.TaskMonitoring, name="TM", daemon=True)
+    #         th_tm.start()
+    #
+    #     self.after(500, self.protectThread)
 
     def TaskMonitoring(self):
         # 如果主窗口标记已关闭，停止多任务管理
         if stopApp: return
         global coolDown
         if coolDown > 18:
-            t = threading.Thread(self.Mf.updateInfo())
-            t.daemon = True
-            t.start()
+            self.after(1000, self.Mf.updateInfo())
             coolDown = 1
         if coolDown: coolDown += 1
-        t = Timer(3, self.TaskMonitoring)
-        t.daemon = True
-        t.start()
+        global th_tm
+        self.after(3000, self.TaskMonitoring)
 
     # 系统设置页面
     # def GotoConfig(self, FromObject):
@@ -259,56 +246,25 @@ class App(tk.Tk):
         FromObject.destroy()
         self.Mf = MainFrame(self)
 
+        # 启动多任务管理线程
+        self.after(1000, self.TaskMonitoring)
+
     def onMainClosing(self, _sysTrayIcon=None):
 
-        global stopApp
-        stopApp = True
-        if not runing.empty():
-            res = messagebox.askokcancel('注意', '正在更新列表\n确定要强制关闭程序吗？')
-            if res:
-                tk._exit()
-            else:
-                return
-        while True:
-            for th in threading.enumerate():
-                if type(th) == threading.Timer:
-                    th.cancel()
-            if len(threading.enumerate()) == 1: break
+        # global stopApp
+        # stopApp = True
+        # if not runing.empty():
+        #     res = messagebox.askokcancel('注意', '正在更新列表\n确定要强制关闭程序吗？')
+        #     if res:
+        #         tk._exit()
+        #     else:
+        #         return
+        # while True:
+        #     for th in threading.enumerate():
+        #         if type(th) == threading.Timer:
+        #             th.cancel()
+        #     if len(threading.enumerate()) == 1: break
         self.destroy()
-
-
-class ConfigFrame(tk.Frame):
-    # 欢迎界面
-    def __init__(self, master):
-        super().__init__(master)
-        master.rowconfigure(0, weight=1)
-        master.columnconfigure(0, weight=1)
-        self.ft = tkFont.Font(family='微软雅黑', size=10, weight='bold')  # 创建字体
-        configs = {
-            "autoqlist": {"value": True, "note": "加载百度知道问题列表自动刷新模块"},
-            "issave": {"value": True, "note": "是否保存问题列表"},
-            "translate": {"value": True, "note": "加载百度翻译模块"},
-            "air": {"value": True, "note": "加载天气查询模块"},
-            "base64": {"value": True, "note": "加载Base64编码生成模块"},
-            "colormanage": {"value": True, "note": "加载颜色值管理模块"}
-        }
-
-        self.grid(row=0, column=0, sticky=tk.NSEW)
-        self.stateValues = {}
-        self.checkbuttonState = tk.IntVar()
-        row = 0
-        for item in configs:
-            self.stateValues.setdefault(item, tk.IntVar())
-            self.stateValues[item].set(configs[item]["value"])
-            rb = ttk.Checkbutton(self, onvalue=1, offvalue=0)
-            rb["variable"] = self.stateValues[item]
-            rb["text"] = configs[item]["note"]
-            rb["command"] = self.onCheckButtonClicked
-            rb.grid(row=row, column=0)
-            row += 1
-
-    def onCheckButtonClicked(self):
-        pass
 
 
 class WelcomeFrame(tk.Frame):
@@ -330,9 +286,6 @@ class WelcomeFrame(tk.Frame):
         self.Lable = tk.Label(self, text="正在初始化程序...", font=("微软雅黑", 9), fg="#924D26")
         self.Lable.grid(row=2, column=0, sticky=tk.NSEW)
         tk.Frame(self).grid(row=3, column=0, sticky=tk.NSEW)
-
-        t = Timer(2, master.GoToMain, args=(self,))
-        t.start()
 
 
 class MainFrame(tk.Frame):
@@ -481,9 +434,9 @@ class MainFrame(tk.Frame):
 
     def initQaList(self):
         # 左边问题列表区域
-        self.frm_left = ttk.Frame(self.panedwin, relief=tk.SUNKEN, padding=0, width=300)  # 左侧Frame帧用于放置播放列表
-        self.frm_left.grid(row=0, column=0, sticky=tk.NS);  # 左侧Frame帧拉伸填充
-        self.panedwin.add(self.frm_left, weight=3)  # 将左侧Frame帧添加到推拉窗控件，左侧权重1
+        self.frm_left = ttk.Frame(self.panedwin, relief=tk.SUNKEN, padding=0)
+        self.frm_left.grid(row=0, column=0, sticky=tk.NSEW);  # 左侧Frame帧拉伸填充
+        self.panedwin.add(self.frm_left, weight=4)  # 将左侧Frame帧添加到推拉窗控件，左侧权重1
         self.frm_left.rowconfigure(0, weight=1)  # 左侧问题列表区域行列权重配置
         self.frm_left.rowconfigure(1, weight=200)
         self.frm_left.columnconfigure(0, weight=1)
@@ -562,12 +515,12 @@ class MainFrame(tk.Frame):
         #     self.tree_qlist.insert("", 0, text='', values=(i, 'title%s' % i, ''))
 
     def initDetail(self):
-        self.frm_right = ttk.Frame(self.panedwin, relief=tk.SUNKEN, width=300)  # 右侧Frame帧用于放置视频区域和控制按钮
+        self.frm_right = ttk.Frame(self.panedwin, relief=tk.SUNKEN)  # 右侧Frame帧用于放置视频区域和控制按钮
         self.frm_right.grid(row=0, column=0, sticky=tk.NSEW)  # 右侧Frame帧四个方向拉伸
+        self.panedwin.add(self.frm_right, weight=3)  # 将右侧Frame帧添加到推拉窗控件,右侧权重10
         self.frm_right.columnconfigure(0, weight=1);  # 右侧Frame帧两行一列，配置列的权重
         self.frm_right.rowconfigure(0, weight=3);  # 右侧Frame帧两行的权重8:1
         # self.frm_right.rowconfigure(1, weight=1)
-        self.panedwin.add(self.frm_right, weight=4)  # 将右侧Frame帧添加到推拉窗控件,右侧权重10
 
         self.text_output = tk.Text(self.frm_right, relief=tk.RIDGE, height=16)
         self.text_output["bg"] = "#21252B"
@@ -932,11 +885,12 @@ class MainFrame(tk.Frame):
                 self.addToOutput(res)
 
         elif cbname == '百度翻译' and self.text_input.get(0.0, tk.END):
-            Timer(1, self.showTransResult).start()
+
+            self.after(500, self.showTransResult)
 
         elif cbname == "拾取颜色":
             logger.info("拾取颜色")
-            threading.Thread(target=self.onMouseWatch, name="onMouseWatch").start()
+            self.after(500, self.onMouseWatch)
 
         elif cbname == "收藏色值":
             cHex = self.colorValues['HEX'].get()
@@ -1070,7 +1024,7 @@ class MainFrame(tk.Frame):
         self.addToState("城市：%s 最高气温：%s 最低气温：%s 天气：%s 风向：%s 风力：%s" % W)
 
     def updateInfo(self, pn=1):
-        runing.put("updateInfo")
+        # runing.put("updateInfo")
         # 更新消息数
         self.addToState("%s: 开始更新问题列表" % TimeOfNow())
         self.updateMsgCount()
@@ -1081,19 +1035,19 @@ class MainFrame(tk.Frame):
             response = requests.post(self.pushUrl, self.pushPostData, cookies=self.cookie_jar)
         except BaseException as e:
             logger.info(e)
-            runing.get()
+            # runing.get()
             return
 
         try:
             reslis = response.json()['data']['detail']
         except BaseException as e:
             logger.info(e)
-            runing.get()
+            # runing.get()
             return
 
         # 无拉取信息
         if not reslis:
-            runing.get()
+            # runing.get()
             return
 
         # 处理信息
@@ -1103,7 +1057,7 @@ class MainFrame(tk.Frame):
             reslis.sort(key=lambda x: x['createTimeOrg'])
         except BaseException as e:
             logger.info(e)
-            runing.get()
+            # runing.get()
             return
 
         # 去重
@@ -1127,7 +1081,7 @@ class MainFrame(tk.Frame):
                 except BaseException as e:
                     logger.info("update", e)
         self.showLisUpdate()
-        runing.get()
+        # runing.get()
 
     def qListClear(self):
         x = self.tree_qlist.get_children()
@@ -1157,6 +1111,40 @@ class MainFrame(tk.Frame):
         self.qfiltered.sort(key=lambda x: x[self.head[kw]['inx']], reverse=self.head[kw]['sort'])
         for item in self.qfiltered:
             self.tree_qlist.insert("", 0, text=item[0], values=item[1:])
+
+
+# class ConfigFrame(tk.Frame):
+#     # 配置界面
+#     def __init__(self, master):
+#         super().__init__(master)
+#         master.rowconfigure(0, weight=1)
+#         master.columnconfigure(0, weight=1)
+#         self.ft = tkFont.Font(family='微软雅黑', size=10, weight='bold')  # 创建字体
+#         configs = {
+#             "autoqlist": {"value": True, "note": "加载百度知道问题列表自动刷新模块"},
+#             "issave": {"value": True, "note": "是否保存问题列表"},
+#             "translate": {"value": True, "note": "加载百度翻译模块"},
+#             "air": {"value": True, "note": "加载天气查询模块"},
+#             "base64": {"value": True, "note": "加载Base64编码生成模块"},
+#             "colormanage": {"value": True, "note": "加载颜色值管理模块"}
+#         }
+#
+#         self.grid(row=0, column=0, sticky=tk.NSEW)
+#         self.stateValues = {}
+#         self.checkbuttonState = tk.IntVar()
+#         row = 0
+#         for item in configs:
+#             self.stateValues.setdefault(item, tk.IntVar())
+#             self.stateValues[item].set(configs[item]["value"])
+#             rb = ttk.Checkbutton(self, onvalue=1, offvalue=0)
+#             rb["variable"] = self.stateValues[item]
+#             rb["text"] = configs[item]["note"]
+#             rb["command"] = self.onCheckButtonClicked
+#             rb.grid(row=row, column=0)
+#             row += 1
+#
+#     def onCheckButtonClicked(self):
+#         pass
 
 
 if (__name__ == '__main__'):
@@ -1201,7 +1189,7 @@ if (__name__ == '__main__'):
     taskList = []
 
     # 多线程执行状态
-    runing = Queue()
+    # runing = Queue()
     # 查询按钮图片
     imageQuery = None
 

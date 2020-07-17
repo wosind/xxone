@@ -2,7 +2,7 @@
 """
 @File    :   xxpublic.py    
 @Time    :   2020-06-16 9:54
-一些常用的自定义函数
+xxfuntion V20200717
 """
 
 import base64
@@ -12,30 +12,27 @@ from ctypes import windll
 # from ctypes import *
 import win32gui, win32ui, win32con, win32api
 
-
+# 10进制颜色值->RGB值
 def Int2Rgb(IntVar):
-    # 10进制颜色值->RGB值
     return [IntVar & 0xff, (IntVar >> 8) & 0xff, (IntVar >> 16) & 0xff]
 
-
+# 16进制颜色值->RGB值
 def Hex2Rgb(HexVar):
-    # 16进制颜色值->RGB值
     value = HexVar.lstrip('#')
     lv = len(value)
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
-
+# RGB值->16进制颜色值
 def Rgb2Hex(R, G, B):
-    # RGB值->16进制颜色值
     H = hex(R)[2:4] + hex(G << 8)[2:4] + hex(B << 16)[2:4]
     return H.upper()
 
-
+# RGB值->10进制颜色值
 def Rgb2Int(R, G, B):
-    # RGB值->10进制颜色值
     return R + (G << 8) + (B << 16)
 
 
+#图片转BASE64编码
 def ImgTobase64(target):
     res = ''
     with open(target, 'rb') as f:
@@ -43,14 +40,13 @@ def ImgTobase64(target):
         res = 'data:image/png;base64,' + base64_data.decode()
     return res
 
-
+# 当前时间格式化：23:59:59
 def TimeOfNow():
-    # 当前时间格式化
     return time.strftime("%H:%M:%S", time.localtime())
 
-
+# 当前时间戳 INT型
 def StampOfNow():
-    # 当前时间戳
+
     return int(round(time.time() * 1000))
 
 
@@ -77,7 +73,7 @@ def window_capture(filename):
     saveDC.BitBlt((0, 0), (w, h), mfcDC, (0, 0), win32con.SRCCOPY)
     saveBitMap.SaveBitmapFile(saveDC, filename)
 
-
+#获取屏幕（x,y）点的颜色值
 def getcolor(dc, x, y):
     return windll.gdi32.GetPixel(dc, x, y)
 
